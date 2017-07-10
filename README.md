@@ -1,7 +1,9 @@
 # SectionRecyclerViewAdapter
 针对各种复杂布局做总结，实现典型的场景
 
-复杂布局样式1：＜/br＞
+复杂布局样式1：
+
+
 ![复杂布局样式1](https://github.com/gycold/SectionRecyclerViewAdapter/blob/master/pictures/1.png)
 
 
