@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:background="#ffffff">
+
+    <ImageView
+        android:id="@+id/img_head"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"/>
+
+    <LinearLayout
+        android:id="@+id/ll_evaluate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/tv_date"
+        android:layout_toRightOf="@+id/img_head"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="5dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_nike_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="昵称：倩女幽魂"
+            android:textColor="#282828"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_evaluate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/img_head"
+        android:layout_below="@+id/ll_evaluate"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        tools:text="服务很周到，物美价廉！\n5星好评啦！"
+        android:textColor="#282828"/>
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        tools:text="2017-07-08"/>
+</RelativeLayout>

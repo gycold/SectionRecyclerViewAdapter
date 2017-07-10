@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SectionRecyclerViewAdapter</string>
+    <string name="item_section_footer">浏览&#160;%1$s&#160;人</string>
+</resources>
