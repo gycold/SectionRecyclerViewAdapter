@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.easyandroid.sectionadapter.holder.EmptyViewHolder;
 import com.easyandroid.sectionadapter.holder.FooterHolder;
 
 /**
@@ -42,6 +43,8 @@ public abstract class SectionedRecyclerViewAdapter<RH extends RecyclerView.ViewH
     //加载完成
     public static final int LOADING_FINISH = 2;
 
+    public static final int TYPE_EMPTY = -4;
+
     //上拉加载默认状态--默认为-1
     public int load_more_status = -1;
 
@@ -67,6 +70,17 @@ public abstract class SectionedRecyclerViewAdapter<RH extends RecyclerView.ViewH
     public OnSectionHeaderClickListener onSectionHeaderClickListener;
     public OnSectionFooterClickListener onSectionFooterClickListener;
 
+    private View emptyView;
+    private boolean emptyViewVisible;
+
+    public View getEmptyView() {
+        return emptyView;
+    }
+
+    public void setEmptyView(View emptyView) {
+        this.emptyView = emptyView;
+    }
+
     public SectionedRecyclerViewAdapter() {
         super();
         //RecyclerView采用观察者(Observer)模式，对外提供了registerDataSetObserver和unregisterDataSetObserver
@@ -79,6 +93,27 @@ public abstract class SectionedRecyclerViewAdapter<RH extends RecyclerView.ViewH
         @Override
         public void onChanged() {
             setupPosition();
+            checkEmpty();//检查数据是否为空，设置空布局
+        }
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            checkEmpty();//检查数据是否为空，设置空布局
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            checkEmpty();//检查数据是否为空，设置空布局
+        }
+    }
+
+    private void checkEmpty() {
+        if (emptyView != null) {
+            if (hasHeader()) {
+                emptyViewVisible = getItemCount() == 2;
+            } else {
+                emptyViewVisible = getItemCount() == 1;
+            }
+            emptyView.setVisibility(emptyViewVisible ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -176,22 +211,33 @@ public abstract class SectionedRecyclerViewAdapter<RH extends RecyclerView.ViewH
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder;
-        if (isSectionHeaderViewType(viewType)) {
-            viewHolder = onCreateSectionHeaderViewHolder(parent, viewType);
-        } else if (isSectionFooterViewType(viewType)) {
-            viewHolder = onCreateSectionFooterViewHolder(parent, viewType);
-        } else if (isFooterViewType(viewType)) {
-            viewHolder = onCreateFooterViewHolder(parent, viewType);
-        } else if (isHeaderViewType(viewType)) {
-            viewHolder = onCreateHeaderViewHolder(parent, viewType);
+        if (viewType == TYPE_EMPTY) {
+            viewHolder = new EmptyViewHolder(emptyView);
         } else {
-            viewHolder = onCreateItemViewHolder(parent, viewType);
+            if (isSectionHeaderViewType(viewType)) {
+                viewHolder = onCreateSectionHeaderViewHolder(parent, viewType);
+            } else if (isSectionFooterViewType(viewType)) {
+                viewHolder = onCreateSectionFooterViewHolder(parent, viewType);
+            } else if (isFooterViewType(viewType)) {
+                viewHolder = onCreateFooterViewHolder(parent, viewType);
+            } else if (isHeaderViewType(viewType)) {
+                viewHolder = onCreateHeaderViewHolder(parent, viewType);
+            } else {
+                viewHolder = onCreateItemViewHolder(parent, viewType);
+            }
         }
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (emptyViewVisible) {//此时数据集为空，需要设置空布局
+        } else {
+            setViewHolder(holder, position);
+        }
+    }
+
+    private void setViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (hasHeader()) {//如果整个列表有header
             if (position == 0) {
                 onBindHeaderViewHolder((RH) holder);
@@ -303,34 +349,38 @@ public abstract class SectionedRecyclerViewAdapter<RH extends RecyclerView.ViewH
         if (sectionForPosition == null) {
             setupPosition();
         }
-        if (hasHeader()) {
-            if (position == 0) {
-                return getHeaderViewType();
-            } else if (position + 1 < getItemCount()) {
-                int section = sectionForPosition[position - 1];
-                int index = positionWithinSection[position - 1];
-                if (isSectionHeaderPosition(position - 1)) {
-                    return getSectionHeaderViewType(section);
-                } else if (isSectionFooterPosition(position - 1)) {
-                    return getSectionFooterViewType(section);
-                } else {
-                    return getSectionItemViewType(section, index);
-                }
-            }
-            return getFooterViewType();
+        if (emptyViewVisible) {
+            return TYPE_EMPTY;
         } else {
-            if (position + 1 < getItemCount()) {
-                int section = sectionForPosition[position];
-                int index = positionWithinSection[position];
-                if (isSectionHeaderPosition(position)) {
-                    return getSectionHeaderViewType(section);
-                } else if (isSectionFooterPosition(position)) {
-                    return getSectionFooterViewType(section);
-                } else {
-                    return getSectionItemViewType(section, index);
+            if (hasHeader()) {
+                if (position == 0) {
+                    return getHeaderViewType();
+                } else if (position + 1 < getItemCount()) {
+                    int section = sectionForPosition[position - 1];
+                    int index = positionWithinSection[position - 1];
+                    if (isSectionHeaderPosition(position - 1)) {
+                        return getSectionHeaderViewType(section);
+                    } else if (isSectionFooterPosition(position - 1)) {
+                        return getSectionFooterViewType(section);
+                    } else {
+                        return getSectionItemViewType(section, index);
+                    }
                 }
+                return getFooterViewType();
+            } else {
+                if (position + 1 < getItemCount()) {
+                    int section = sectionForPosition[position];
+                    int index = positionWithinSection[position];
+                    if (isSectionHeaderPosition(position)) {
+                        return getSectionHeaderViewType(section);
+                    } else if (isSectionFooterPosition(position)) {
+                        return getSectionFooterViewType(section);
+                    } else {
+                        return getSectionItemViewType(section, index);
+                    }
+                }
+                return getFooterViewType();
             }
-            return getFooterViewType();
         }
     }
 
