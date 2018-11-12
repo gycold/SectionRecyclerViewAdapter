@@ -11,9 +11,9 @@
 
 ### 复杂布局样式1：
 
-
 ![复杂布局样式1](https://github.com/gycold/SectionRecyclerViewAdapter/blob/master/pictures/1.png)
 
+---
 
 ### 复杂布局样式2：
 
